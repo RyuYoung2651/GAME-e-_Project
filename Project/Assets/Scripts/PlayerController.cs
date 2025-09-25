@@ -46,12 +46,12 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKey(KeyCode.LeftShift))
         {
             speed = 30;
-            virtualCamera.m_Lens.FieldOfView = 80f;
+            virtualCamera.m_Lens.FieldOfView = 100f;
         }
         else
         {
             speed = 12;
-            virtualCamera.m_Lens.FieldOfView = 60f;
+            virtualCamera.m_Lens.FieldOfView = 80f;
         }
 
 
