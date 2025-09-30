@@ -1213,6 +1213,18 @@ MonoBehaviour:
   prohectTilePrefabs: {fileID: 2972420647223286684, guid: acd620fdadc4dfc44b50fd771890d4b2,
     type: 3}
   firePoint: {fileID: 149041475}
+  firePointObject: {fileID: 149041474}
+  weapons:
+  - name: 
+    projectilePrefab: {fileID: 2972420647223286684, guid: acd620fdadc4dfc44b50fd771890d4b2,
+      type: 3}
+    damage: 1
+    fireRate: 0.5
+  - name: 
+    projectilePrefab: {fileID: 818282668656247736, guid: d80d4765a0df0944ebe95f9607c3c6c3,
+      type: 3}
+    damage: 3
+    fireRate: 0.5
 --- !u!1 &715366184
 GameObject:
   m_ObjectHideFlags: 0

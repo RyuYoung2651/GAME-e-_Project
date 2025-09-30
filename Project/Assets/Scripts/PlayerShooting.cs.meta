@@ -3,7 +3,11 @@ guid: 077c5598532e4594bbbb2b404024ef53
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - prohectTilePrefabs: {fileID: 818282668656247736, guid: d80d4765a0df0944ebe95f9607c3c6c3,
+      type: 3}
+  - firePoint: {instanceID: 0}
+  - firePointObject: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
