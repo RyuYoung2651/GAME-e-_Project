@@ -15,7 +15,7 @@ public class PlayerShooting : MonoBehaviour
     {
         public string name;
         public GameObject projectilePrefab;
-        public float damage = 1f;
+        public int damage = 1;
         public float fireRate = 0.5f; // seconds per shot
     }
 
@@ -30,10 +30,7 @@ public class PlayerShooting : MonoBehaviour
         cam = Camera.main;
 
         // If a GameObject is assigned for firePoint, map it to Transform
-        if (firePoint == null && firePointObject != null)
-        {
-            firePoint = firePointObject.transform;
-        }
+      
 
         // Backward compatibility: if weapons not configured in Inspector, initialize defaults
         if (weapons[0] == null)
@@ -42,7 +39,7 @@ public class PlayerShooting : MonoBehaviour
             {
                 name = "Default",
                 projectilePrefab = prohectTilePrefabs,
-                damage = 1f,
+                damage = 1,
                 fireRate = 0.5f
             };
         }
@@ -52,7 +49,7 @@ public class PlayerShooting : MonoBehaviour
             {
                 name = "NewWeapon",
                 projectilePrefab = prohectTilePrefabs,
-                damage = 3f,
+                damage = 3,
                 fireRate = 0.3f
             };
         }
@@ -61,6 +58,9 @@ public class PlayerShooting : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+       
+
+
         if (Input.GetKeyDown(KeyCode.Z))
         {
             SwitchWeapon();

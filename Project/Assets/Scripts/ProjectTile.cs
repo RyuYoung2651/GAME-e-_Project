@@ -9,7 +9,7 @@ public class ProjectTile : MonoBehaviour
 
     public float lifeTime = 2f;
 
-    public float damage = 1;
+    public int damage = 1;
 
     private Rigidbody rb;
 
