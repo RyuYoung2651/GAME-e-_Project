@@ -18,6 +18,7 @@ public class MarioController : MonoBehaviour
 	public float gravity = -9.81f;
 	public float coyoteTime = 0.1f;                  // allow jump shortly after leaving ground
 	public float jumpBufferTime = 0.1f;              // buffer jump input before landing
+	public float bouncePower = 7f;                   // stomp bounce power
 
 	[Header("Ʈ")]
 	public Animator animator;
@@ -26,6 +27,10 @@ public class MarioController : MonoBehaviour
 	public int jumpStateLayer = 0;
 	public bool crossFadeOnJump = false;
 	public float jumpCrossFadeDuration = 0.05f;
+
+	[Header("Respawn")]
+	public Transform respawnPoint;
+	public float respawnDelay = 1.0f;
 
 	private CharacterController controller;
 	private Camera playerCamera;
@@ -38,17 +43,21 @@ public class MarioController : MonoBehaviour
 	private float coyoteUntil = 0f;
 	private float jumpBufferedUntil = 0f;
 	private Vector3 pendingHorizontalMove = Vector3.zero;
+	private bool isDead = false;
+	private Vector3 initialSpawnPosition;
 
 	// Start is called before the first frame update
 	void Start()
 	{
 		controller = GetComponent<CharacterController>();
 		playerCamera = Camera.main;
+		initialSpawnPosition = transform.position;
 	}
 
 	// Update is called once per frame
 	void Update()
 	{
+		if (isDead) return;
 		HandleMovement();
 		HandleJumpAndGravity();
 		UpdateAnimation();
@@ -143,5 +152,37 @@ public class MarioController : MonoBehaviour
 			animator.SetBool("isGrounded", controller.isGrounded);
 			animator.SetFloat("yVelocity", verticalVelocity);
 		}
+	}
+
+	public float GetVerticalVelocity()
+	{
+		return verticalVelocity;
+	}
+
+	public void Bounce(float power)
+	{
+		// force upward velocity for stomp bounce
+		verticalVelocity = Mathf.Max(verticalVelocity, power > 0f ? power : bouncePower);
+		// clear any consumed jump buffer to avoid double triggering
+		jumpBufferedUntil = 0f;
+	}
+
+	public void Die()
+	{
+		if (isDead) return;
+		isDead = true;
+		if (controller != null) controller.enabled = false;
+		enabled = false; // stop Update
+		if (RespawnManager.Instance != null)
+		{
+			RespawnManager.Instance.RequestRespawn(respawnDelay);
+		}
+		StartCoroutine(DestroyAfterDelay());
+	}
+
+	private IEnumerator DestroyAfterDelay()
+	{
+		yield return new WaitForSeconds(respawnDelay);
+		Destroy(gameObject);
 	}
 }

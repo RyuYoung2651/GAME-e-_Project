@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &3894661531306714161
+--- !u!1 &3839097963551812013
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,37 +8,93 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 7448743797390163879}
+  - component: {fileID: 659264164750947460}
+  - component: {fileID: 6768396601734534600}
+  - component: {fileID: 8191314991626327280}
   m_Layer: 0
-  m_Name: Mario
-  m_TagString: Untagged
+  m_Name: Mario 1
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &7448743797390163879
+--- !u!4 &659264164750947460
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3894661531306714161}
+  m_GameObject: {fileID: 3839097963551812013}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: 0.9994971, z: -0, w: 0.031710822}
+  m_LocalPosition: {x: 0.09, y: -3.78, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 8565043713541932203}
+  - {fileID: 1273783652676739617}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &5960874504554083482
+  m_LocalEulerAnglesHint: {x: 0, y: 176.366, z: 0}
+--- !u!114 &6768396601734534600
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3839097963551812013}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66fe47f45c30c3e4e9c9442e2d7f4a4b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  walkSpeed: 10
+  runSpeed: 15
+  rotationSpeed: 30
+  attackDuration: 0.8
+  canMoveWhileAttacking: 0
+  jumpPower: 18
+  gravity: -27
+  coyoteTime: 0.1
+  jumpBufferTime: 0.1
+  animator: {fileID: 5655572898463703411}
+  jumpStateName: Jump
+  jumpStateLayer: 0
+  crossFadeOnJump: 0
+  jumpCrossFadeDuration: 0.05
+  respawnPoint: {fileID: 0}
+  respawnDelay: 1
+--- !u!143 &8191314991626327280
+CharacterController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3839097963551812013}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Height: 5
+  m_Radius: 1.1
+  m_SlopeLimit: 45
+  m_StepOffset: 0.3
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 2.5, z: -0.21}
+--- !u!1001 &3875630451788075536
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 7448743797390163879}
+    m_TransformParent: {fileID: 659264164750947460}
     m_Modifications:
     - target: {fileID: -7981514964708312862, guid: d99ecb16b5172094f8be9c47b62d1ba1,
         type: 3}
@@ -115,15 +171,26 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8914207829204841315, guid: d99ecb16b5172094f8be9c47b62d1ba1,
+        type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: ab4dd1a6229d72d449dcf35b6bf598e7, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 3150474306388093854, guid: d99ecb16b5172094f8be9c47b62d1ba1,
     type: 3}
---- !u!4 &8565043713541932203 stripped
+--- !u!4 &1273783652676739617 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -6601043233671942095, guid: d99ecb16b5172094f8be9c47b62d1ba1,
     type: 3}
-  m_PrefabInstance: {fileID: 5960874504554083482}
+  m_PrefabInstance: {fileID: 3875630451788075536}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &5655572898463703411 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 8914207829204841315, guid: d99ecb16b5172094f8be9c47b62d1ba1,
+    type: 3}
+  m_PrefabInstance: {fileID: 3875630451788075536}
   m_PrefabAsset: {fileID: 0}
