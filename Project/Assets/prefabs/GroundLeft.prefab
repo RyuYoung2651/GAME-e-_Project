@@ -9,7 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2393522625011878655}
-  m_Layer: 0
+  - component: {fileID: -2954318361961355922}
+  m_Layer: 3
   m_Name: GroundLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -25,13 +26,34 @@ Transform:
   m_GameObject: {fileID: 7827075120964422931}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -18.588144, y: -23.897518, z: 17.608328}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2913000001480032401}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &-2954318361961355922
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7827075120964422931}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 6.5, y: 6.5, z: 6.5}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &3451929314697897850
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -58,17 +80,17 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 7872d4e0842d46243a50b994be2a83a1,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 13.588144
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 7872d4e0842d46243a50b994be2a83a1,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 14.797518
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 7872d4e0842d46243a50b994be2a83a1,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -17.608328
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 7872d4e0842d46243a50b994be2a83a1,
         type: 3}
@@ -114,6 +136,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: GroundVoxel
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 7872d4e0842d46243a50b994be2a83a1,
+        type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 951011102456138778, guid: 7872d4e0842d46243a50b994be2a83a1,
+        type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

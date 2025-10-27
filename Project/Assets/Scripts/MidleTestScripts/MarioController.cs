@@ -37,7 +37,6 @@ public class MarioController : MonoBehaviour
 
 	// 
 	private float currentSpeed;
-	private bool isAttacking = false;   //  üũ
 	private float verticalVelocity = 0f;
 	private bool wasGrounded = true;
 	private float coyoteUntil = 0f;
@@ -173,11 +172,22 @@ public class MarioController : MonoBehaviour
 		isDead = true;
 		if (controller != null) controller.enabled = false;
 		enabled = false; // stop Update
-		if (RespawnManager.Instance != null)
+
+		// Show Game Over UI
+		var gameOverUI = FindFirstObjectByType<GameOverUI>();
+		if (gameOverUI != null)
 		{
-			RespawnManager.Instance.RequestRespawn(respawnDelay);
+			gameOverUI.ShowGameOver();
 		}
-		StartCoroutine(DestroyAfterDelay());
+		else
+		{
+			// If GameOverUI not found, try RespawnManager as fallback
+			if (RespawnManager.Instance != null)
+			{
+				RespawnManager.Instance.RequestRespawn(respawnDelay);
+			}
+			StartCoroutine(DestroyAfterDelay());
+		}
 	}
 
 	private IEnumerator DestroyAfterDelay()

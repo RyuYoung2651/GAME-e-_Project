@@ -19,11 +19,11 @@ public class SideScrollerCamera : MonoBehaviour
 	public float maxY = Mathf.Infinity;
 
 	[Header("View Lock")]
-	public float fixedZ = -10f;                 // keep camera at this Z
+	public float fixedZ = -15f;                 // keep camera at this Z
 	public Vector3 fixedRotationEuler = new Vector3(0f, 0f, 0f); // face one direction
 
 	[Header("Offset")]
-	public Vector2 offset = new Vector2(2f, 3.5f); // raise camera a bit higher
+	public Vector2 offset = new Vector2(6f, 3.5f); // look ahead more
 
 	private Vector3 currentVelocity;
 

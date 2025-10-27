@@ -11,4 +11,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/MiddleTest/Test.unity
     guid: 2eaa17b0f7e08ad4bb65ea01e9b1988d
+  - enabled: 1
+    path: Assets/Scenes/MiddleTest/Test 2.unity
+    guid: e3af7b1b277cce643848fdd24eed6db0
   m_configObjects: {}

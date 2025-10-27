@@ -18,10 +18,10 @@ public class MarioEnemy : MonoBehaviour
 	[Header("Stats")]
 	public int maxHealth = 2;
 	public int currentHealth = 2;
-	public float moveSpeed = 2f;
+	public float moveSpeed = 10f;
 	public float gravity = -9.81f;
 	public int contactDamage = 1;
-	public float jumpPower = 5f;
+	public float jumpPower = 13f;
 
 	[Header("Behavior")]
 	public bool patrol = true;
@@ -62,6 +62,11 @@ public class MarioEnemy : MonoBehaviour
 		{
 			GameObject mario = GameObject.FindGameObjectWithTag("Player");
 			if (mario != null) target = mario.transform;
+		}
+		// Ensure wallLayers is set properly (sometimes prefabs have uninitialized layer mask)
+		if (wallLayers == 0)
+		{
+			wallLayers = ~0; // default to all layers
 		}
 	}
 
@@ -155,11 +160,6 @@ public class MarioEnemy : MonoBehaviour
 		{
 			controller.Move((horizontalMove + verticalMove) * Time.deltaTime);
 		}
-		else
-		{
-			// Fallback: transform-based motion if controller is missing
-			transform.position += (horizontalMove + verticalMove) * Time.deltaTime;
-		}
 
 		// flip facing gradually
 		ApplyFacing();
@@ -188,71 +188,51 @@ public class MarioEnemy : MonoBehaviour
 		Destroy(gameObject);
 	}
 
-	private bool TryHandleStomp(Collision collision)
-	{
-		var mario = collision.collider.GetComponentInParent<MarioController>();
-		if (mario == null) return false;
-		// stomp 판정: 플레이어의 발 위치가 적의 상단보다 위, 그리고 플레이어가 하강 중이었는지
-		float playerY = mario.transform.position.y;
-		float enemyTop = transform.position.y + (controller != null ? controller.height * 0.5f : 0.5f);
-		bool fromAbove = playerY > enemyTop - 0.1f && mario.GetVerticalVelocity() <= 0f;
-		if (!fromAbove) return false;
-		// 스톰프 처리: 적 사망 + 플레이어 바운스
-		mario.Bounce(mario.bouncePower);
-		Die();
-		return true;
-	}
-
-	void OnCollisionEnter(Collision collision)
-	{
-		if (TryHandleStomp(collision)) return;
-		var mario = collision.collider.GetComponentInParent<MarioController>();
-		if (mario != null)
-		{
-			mario.Die();
-		}
-	}
-
 	private void OnControllerColliderHit(ControllerColliderHit hit)
 	{
 		// CharacterController 충돌에서는 stomp 판정이 어렵기 때문에 머리 위에서 내려온 경우를 간단히 추정
-		var mario = hit.collider != null ? hit.collider.GetComponentInParent<MarioController>() : null;
-		if (mario != null)
+		if (hit.collider == null) return;
+		var mario = hit.collider.GetComponentInParent<MarioController>();
+		if (mario == null)
 		{
-			float playerY = mario.transform.position.y;
-			float enemyTop = transform.position.y + (controller != null ? controller.height * 0.5f : 0.5f);
-			bool fromAbove = playerY > enemyTop - 0.1f && mario.GetVerticalVelocity() <= 0f;
-			if (fromAbove)
-			{
-				mario.Bounce(mario.bouncePower);
-				Die();
-			}
-			else
-			{
-				mario.Die();
-			}
+			// 플레이어가 아닌 것에 부딪힘 - 경계 확인용
+			return;
+		}
+		HandlePlayerCollision(mario);
+	}
+
+	private void HandlePlayerCollision(MarioController mario)
+	{
+		float playerY = mario.transform.position.y;
+		float enemyHeight = controller != null ? controller.height : 1f;
+		float enemyTop = transform.position.y + enemyHeight * 0.5f;
+		float enemyBottom = transform.position.y - enemyHeight * 0.5f;
+		float playerVelocity = mario.GetVerticalVelocity();
+		
+		// Stomp: player must be clearly above enemy AND falling or barely moving downward
+		// Make the check very clear: player center should be above enemy top
+		bool fromAbove = playerY > enemyTop + 0.3f && playerVelocity <= 1f;
+		
+		Debug.Log($"Collision: playerY={playerY:F2}, enemyTop={enemyTop:F2}, playerVel={playerVelocity:F2}, fromAbove={fromAbove}");
+		
+		if (fromAbove)
+		{
+			Debug.Log("Stomp! Enemy dies.");
+			mario.Bounce(mario.bouncePower);
+			Die();
+		}
+		else
+		{
+			Debug.Log("Player died from side collision.");
+			mario.Die();
 		}
 	}
 
 	private void OnTriggerEnter(Collider other)
 	{
 		var mario = other.GetComponentInParent<MarioController>();
-		if (mario != null)
-		{
-			// 트리거에서는 상대적 위치로 간단히 판정
-			float playerY = mario.transform.position.y;
-			float enemyTop = transform.position.y + (controller != null ? controller.height * 0.5f : 0.5f);
-			bool fromAbove = playerY > enemyTop - 0.1f && mario.GetVerticalVelocity() <= 0f;
-			if (fromAbove)
-			{
-				mario.Bounce(mario.bouncePower);
-				Die();
-			}
-			else
-			{
-				mario.Die();
-			}
-		}
+		if (mario == null) return;
+		HandlePlayerCollision(mario);
 	}
 
 	void OnDrawGizmosSelected()
