@@ -4,195 +4,255 @@ using UnityEngine;
 
 public class MarioController : MonoBehaviour
 {
-	[Header("̵")]
-	public float walkSpeed = 10f;
-	public float runSpeed = 15f;
-	public float rotationSpeed = 30f;
+    [Header("Movement")]
+    public float walkSpeed = 10f;
+    public float runSpeed = 15f;
+    public float rotationSpeed = 30f;
 
-	[Header(" ")]
-	public float attackDuration = 0.8f;              // ð
-	public bool canMoveWhileAttacking = false;       //  ̵  
+    [Header("Jumping")]
+    public float jumpPower = 7f;
+    public float gravity = -9.81f;
+    public float coyoteTime = 0.1f;
+    public float jumpBufferTime = 0.1f;
+    public float bouncePower = 7f;
 
-	[Header("")]
-	public float jumpPower = 7f;
-	public float gravity = -9.81f;
-	public float coyoteTime = 0.1f;                  // allow jump shortly after leaving ground
-	public float jumpBufferTime = 0.1f;              // buffer jump input before landing
-	public float bouncePower = 7f;                   // stomp bounce power
+    [Header("Animation")]
+    public Animator animator;
+    [Tooltip("Animator state name to optionally crossfade to on jump")]
+    public string jumpStateName = "Jump";
+    public int jumpStateLayer = 0;
+    public bool crossFadeOnJump = false;
+    public float jumpCrossFadeDuration = 0.05f;
 
-	[Header("Ʈ")]
-	public Animator animator;
-	[Tooltip("Animator state name to optionally crossfade to on jump")]
-	public string jumpStateName = "Jump";
-	public int jumpStateLayer = 0;
-	public bool crossFadeOnJump = false;
-	public float jumpCrossFadeDuration = 0.05f;
+    [Header("Respawn")]
+    public Transform respawnPoint;
+    public float respawnDelay = 1.0f;
 
-	[Header("Respawn")]
-	public Transform respawnPoint;
-	public float respawnDelay = 1.0f;
+    // --- Private Variables ---
+    private CharacterController controller;
+    private float currentSpeed;
+    private float verticalVelocity = 0f;
+    private float coyoteUntil = 0f;
+    private float jumpBufferedUntil = 0f;
+    private Vector3 pendingHorizontalMove = Vector3.zero;
+    private bool isDead = false;
+    private bool hasPowerUp = false;
+    private bool isInvincible = false;
 
-	private CharacterController controller;
-	private Camera playerCamera;
+    // Power-up state variables
+    private Vector3 originalScale;
+    private float originalWalkSpeed;
+    private float originalRunSpeed;
+    private Coroutine powerUpRoutine;
 
-	// 
-	private float currentSpeed;
-	private float verticalVelocity = 0f;
-	private bool wasGrounded = true;
-	private float coyoteUntil = 0f;
-	private float jumpBufferedUntil = 0f;
-	private Vector3 pendingHorizontalMove = Vector3.zero;
-	private bool isDead = false;
-	private Vector3 initialSpawnPosition;
+    // Layer variables for collision ignorance
+    private int playerLayer;
+    private int enemyLayer;
 
-	// Start is called before the first frame update
-	void Start()
-	{
-		controller = GetComponent<CharacterController>();
-		playerCamera = Camera.main;
-		initialSpawnPosition = transform.position;
-	}
+    // --- Unity Methods ---
+    void Start()
+    {
+        controller = GetComponent<CharacterController>();
 
-	// Update is called once per frame
-	void Update()
-	{
-		if (isDead) return;
-		HandleMovement();
-		HandleJumpAndGravity();
-		UpdateAnimation();
-	}
+        // Store original values for power-ups
+        originalScale = transform.localScale;
+        originalWalkSpeed = walkSpeed;
+        originalRunSpeed = runSpeed;
 
-	void HandleMovement()
-	{
-		float horizontal = Input.GetAxisRaw("Horizontal");
+        // Get layer indices by name
+        playerLayer = LayerMask.NameToLayer("Player");
+        enemyLayer = LayerMask.NameToLayer("Enemy");
+    }
 
-		// 2D 좌우 이동만 허용 (월드 X축)
-		if (horizontal != 0)
-		{
-			Vector3 moveDirection = new Vector3(horizontal, 0f, 0f);
+    void Update()
+    {
+        if (isDead) return;
+        HandleMovement();
+        HandleJumpAndGravity();
+        UpdateAnimation();
+    }
 
-			if (Input.GetKey(KeyCode.LeftShift))
-			{
-				currentSpeed = runSpeed;
-			}
-			else
-			{
-				currentSpeed = walkSpeed;
-			}
+    // --- Core Logic Methods ---
+    void HandleMovement()
+    {
+        float horizontal = Input.GetAxisRaw("Horizontal");
+        if (horizontal != 0)
+        {
+            Vector3 moveDirection = new Vector3(horizontal, 0f, 0f);
+            currentSpeed = Input.GetKey(KeyCode.LeftShift) ? runSpeed : walkSpeed;
+            pendingHorizontalMove = moveDirection.normalized * currentSpeed;
+            Vector3 faceDir = horizontal > 0 ? Vector3.right : Vector3.left;
+            Quaternion targetRotation = Quaternion.LookRotation(faceDir, Vector3.up);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+        }
+        else
+        {
+            currentSpeed = 0;
+            pendingHorizontalMove = Vector3.zero;
+        }
+        bool jumpPressed = Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow);
+        if (jumpPressed)
+        {
+            jumpBufferedUntil = Time.time + jumpBufferTime;
+        }
+    }
 
-			pendingHorizontalMove = moveDirection.normalized * currentSpeed;  // defer, combine later
+    void HandleJumpAndGravity()
+    {
+        bool isGrounded = controller.isGrounded;
+        if (isGrounded && verticalVelocity < 0)
+        {
+            verticalVelocity = -2f;
+            coyoteUntil = Time.time + coyoteTime;
+        }
+        if (Time.time < coyoteUntil && Time.time < jumpBufferedUntil)
+        {
+            verticalVelocity = jumpPower;
+            jumpBufferedUntil = 0f;
+            coyoteUntil = 0f;
+            if (animator != null)
+            {
+                animator.SetTrigger("jumpTrigger");
+                if (crossFadeOnJump && !string.IsNullOrEmpty(jumpStateName))
+                {
+                    animator.CrossFade(jumpStateName, jumpCrossFadeDuration, jumpStateLayer);
+                }
+            }
+        }
+        verticalVelocity += gravity * Time.deltaTime;
+        Vector3 finalMove = pendingHorizontalMove + (Vector3.up * verticalVelocity);
+        controller.Move(finalMove * Time.deltaTime);
+    }
 
-			// 좌우로만 바라보게 회전
-			Vector3 faceDir = horizontal > 0 ? Vector3.right : Vector3.left;
-			Quaternion targetRotion = Quaternion.LookRotation(faceDir, Vector3.up);
-			transform.rotation = Quaternion.Slerp(transform.rotation, targetRotion, rotationSpeed * Time.deltaTime);
-		}
-		else
-		{
-			currentSpeed = 0;
-			pendingHorizontalMove = Vector3.zero;
-		}
+    void UpdateAnimation()
+    {
+        if (animator == null) return;
+        float animatorSpeed = Mathf.Clamp01(currentSpeed / runSpeed);
+        animator.SetFloat("speed", animatorSpeed);
+        animator.SetBool("isGrounded", controller.isGrounded);
+        animator.SetFloat("yVelocity", verticalVelocity);
+    }
 
-		// Space/W/UpArrow 모두 동일하게 점프 입력 버퍼링
-		bool jumpPressed = Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow);
-		if (jumpPressed)
-		{
-			jumpBufferedUntil = Time.time + jumpBufferTime;
-		}
-	}
+    // --- Public Methods for Interaction ---
+    public float GetVerticalVelocity()
+    {
+        return verticalVelocity;
+    }
 
-	void HandleJumpAndGravity()
-	{
-		bool isGrounded = controller.isGrounded;
-		if (isGrounded)
-		{
-			coyoteUntil = Time.time + coyoteTime;
-			if (verticalVelocity < 0f)
-			{
-				verticalVelocity = -2f; // ensures we stay grounded
-			}
-		}
+    public void Bounce(float power)
+    {
+        verticalVelocity = Mathf.Max(verticalVelocity, power > 0f ? power : bouncePower);
+        jumpBufferedUntil = 0f;
+    }
 
-		// allow jump if within coyote and buffered
-		if (Time.time <= coyoteUntil && Time.time <= jumpBufferedUntil)
-		{
-			verticalVelocity = jumpPower; // identical jump power regardless of input source
-			jumpBufferedUntil = 0f; // consume buffer
-			if (animator != null)
-			{
-				animator.SetTrigger("jumpTrigger");
-				if (crossFadeOnJump && !string.IsNullOrEmpty(jumpStateName))
-				{
-					int stateHash = Animator.StringToHash(jumpStateName);
-					if (animator.HasState(jumpStateLayer, stateHash))
-					{
-						animator.CrossFade(stateHash, jumpCrossFadeDuration, jumpStateLayer);
-					}
-				}
-			}
-		}
+    public void GetPowerUp(float sizeMultiplier)
+    {
+        if (hasPowerUp) return;
+        Debug.Log("🍄 Power Up!");
+        hasPowerUp = true;
+        transform.localScale = originalScale * sizeMultiplier;
+    }
 
-		verticalVelocity += gravity * Time.deltaTime;
-		Vector3 verticalMove = new Vector3(0f, verticalVelocity, 0f);
-		// single Move combining horizontal and vertical
-		controller.Move((pendingHorizontalMove + verticalMove) * Time.deltaTime);
+    public void TakeDamage()
+    {
+        if (isDead || isInvincible) return; // 무적이거나 죽었으면 리턴
+        if (hasPowerUp)
+        {
+            Debug.Log("💫 Hit, but saved by power-up! Shrinking down.");
+            hasPowerUp = false;
+            transform.localScale = originalScale;
+            walkSpeed = originalWalkSpeed;
+            runSpeed = originalRunSpeed;
+            StartCoroutine(InvincibilityFrames(1.5f)); // 1.5초 무적 시작
+            return;
+        }
+        Debug.Log("💀 No power-up! Player dies.");
+        Die();
+    }
 
-		// cache for animation
-		wasGrounded = isGrounded;
-	}
+    public void Die()
+    {
+        if (isDead) return;
+        isDead = true;
+        if (controller != null) controller.enabled = false;
 
-	void UpdateAnimation()
-	{
-		//ü ִ ӵ(runSpeed)  0 ~ 1 
-		float animatorSpeed = Mathf.Clamp01(currentSpeed / runSpeed);
-		if (animator != null)
-		{
-			animator.SetFloat("speed", animatorSpeed);
-			animator.SetBool("isGrounded", controller.isGrounded);
-			animator.SetFloat("yVelocity", verticalVelocity);
-		}
-	}
+        // animator.SetTrigger("dieTrigger"); // <-- 유저 요청으로 주석 처리 (죽는 애니메이션 없음)
 
-	public float GetVerticalVelocity()
-	{
-		return verticalVelocity;
-	}
+        enabled = false;
+        var gameOverUI = FindFirstObjectByType<GameOverUI>();
+        if (gameOverUI != null)
+        {
+            gameOverUI.ShowGameOver();
+        }
+        else
+        {
+            StartCoroutine(DestroyAfterDelay());
+        }
+    }
 
-	public void Bounce(float power)
-	{
-		// force upward velocity for stomp bounce
-		verticalVelocity = Mathf.Max(verticalVelocity, power > 0f ? power : bouncePower);
-		// clear any consumed jump buffer to avoid double triggering
-		jumpBufferedUntil = 0f;
-	}
+    private IEnumerator DestroyAfterDelay()
+    {
+        yield return new WaitForSeconds(respawnDelay);
+        Destroy(gameObject);
+    }
 
-	public void Die()
-	{
-		if (isDead) return;
-		isDead = true;
-		if (controller != null) controller.enabled = false;
-		enabled = false; // stop Update
+    private IEnumerator InvincibilityFrames(float duration)
+    {
+        Debug.Log("🛡️ Invincibility started!");
+        isInvincible = true;
 
-		// Show Game Over UI
-		var gameOverUI = FindFirstObjectByType<GameOverUI>();
-		if (gameOverUI != null)
-		{
-			gameOverUI.ShowGameOver();
-		}
-		else
-		{
-			// If GameOverUI not found, try RespawnManager as fallback
-			if (RespawnManager.Instance != null)
-			{
-				RespawnManager.Instance.RequestRespawn(respawnDelay);
-			}
-			StartCoroutine(DestroyAfterDelay());
-		}
-	}
+        // 플레이어와 적 레이어 간의 충돌을 끕니다.
+        Physics.IgnoreLayerCollision(playerLayer, enemyLayer, true);
 
-	private IEnumerator DestroyAfterDelay()
-	{
-		yield return new WaitForSeconds(respawnDelay);
-		Destroy(gameObject);
-	}
+        // --- 플레이어 깜빡임 효과 ---
+        Renderer playerRenderer = GetComponentInChildren<Renderer>();
+
+        if (playerRenderer != null) // 렌더러가 있는지 확인
+        {
+            float blinkInterval = 0.1f;
+            float endTime = Time.realtimeSinceStartup + duration;
+
+            while (Time.realtimeSinceStartup < endTime)
+            {
+                playerRenderer.enabled = !playerRenderer.enabled;
+                yield return new WaitForSecondsRealtime(blinkInterval);
+            }
+            playerRenderer.enabled = true; // 깜빡임이 끝나면 반드시 켬
+        }
+        else // 렌더러가 없으면 그냥 시간만 기다림
+        {
+            Debug.LogWarning("Player Renderer not found. Waiting for duration.");
+            yield return new WaitForSecondsRealtime(duration);
+        }
+        // -----------------------------
+
+        // 무적이 끝나면 충돌을 다시 켭니다.
+        Physics.IgnoreLayerCollision(playerLayer, enemyLayer, false);
+
+        isInvincible = false;
+        Debug.Log("🛡️ Invincibility ended.");
+    }
+
+
+    // --- Timed Power-up (Star) ---
+    public void GainPower(float sizeUp, float speedUp, float duration)
+    {
+        if (powerUpRoutine != null)
+        {
+            StopCoroutine(powerUpRoutine);
+        }
+        powerUpRoutine = StartCoroutine(PowerUpEffect(sizeUp, speedUp, duration));
+    }
+
+    private IEnumerator PowerUpEffect(float sizeUp, float speedUp, float duration)
+    {
+        transform.localScale += Vector3.one * sizeUp;
+        walkSpeed += speedUp;
+        runSpeed += speedUp;
+        yield return new WaitForSeconds(duration);
+        transform.localScale -= Vector3.one * sizeUp;
+        walkSpeed -= speedUp;
+        runSpeed -= speedUp;
+        powerUpRoutine = null;
+    }
 }

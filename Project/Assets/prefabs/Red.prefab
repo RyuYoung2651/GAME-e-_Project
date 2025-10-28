@@ -10,9 +10,10 @@ GameObject:
   m_Component:
   - component: {fileID: 99496836423053480}
   - component: {fileID: 2554673780038233861}
-  m_Layer: 0
+  - component: {fileID: -4960612131291636286}
+  m_Layer: 7
   m_Name: Red
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -52,13 +53,46 @@ CharacterController:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Height: 2
-  m_Radius: 9.48
+  m_Height: 10.42
+  m_Radius: 9.57
   m_SlopeLimit: 45
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: -0.57, z: 0}
+  m_Center: {x: 0, y: 0.49, z: 0}
+--- !u!114 &-4960612131291636286
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6465762650090467462}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0b316ac9f1735b4e849829f6e7d07da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyType: 0
+  maxHealth: 2
+  currentHealth: 2
+  moveSpeed: 10
+  gravity: -9.81
+  contactDamage: 1
+  jumpPower: 13
+  patrol: 1
+  leftBoundary: {fileID: 0}
+  rightBoundary: {fileID: 0}
+  flipOnTurn: 1
+  target: {fileID: 0}
+  chaseRange: 0
+  wallCheckDistance: 7
+  wallCheckRadius: 0.2
+  wallLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  jumpCooldown: 0.5
+  useSphereCast: 1
+  debugWallCheck: 0
 --- !u!1001 &7514672176643542187
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -71,6 +105,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Red (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: -567836073677077168, guid: fa77778edc902ee4f95cc5318b2736a4,
+        type: 3}
+      propertyPath: m_Layer
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 2111098810646911548, guid: fa77778edc902ee4f95cc5318b2736a4,
         type: 3}

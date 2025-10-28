@@ -34,7 +34,7 @@ public class MarioEnemy : MonoBehaviour
 	public float chaseRange = 0f; // 0 = disabled
 
 	[Header("Wall Jump")]
-	public float wallCheckDistance = 0.6f;
+	public float wallCheckDistance = 7f;
 	public float wallCheckRadius = 0.2f; // for sphere cast
 	public LayerMask wallLayers = ~0; // default: everything
 	public float jumpCooldown = 0.5f;
@@ -201,34 +201,40 @@ public class MarioEnemy : MonoBehaviour
 		HandlePlayerCollision(mario);
 	}
 
-	private void HandlePlayerCollision(MarioController mario)
-	{
-		float playerY = mario.transform.position.y;
-		float enemyHeight = controller != null ? controller.height : 1f;
-		float enemyTop = transform.position.y + enemyHeight * 0.5f;
-		float enemyBottom = transform.position.y - enemyHeight * 0.5f;
-		float playerVelocity = mario.GetVerticalVelocity();
-		
-		// Stomp: player must be clearly above enemy AND falling or barely moving downward
-		// Make the check very clear: player center should be above enemy top
-		bool fromAbove = playerY > enemyTop + 0.3f && playerVelocity <= 1f;
-		
-		Debug.Log($"Collision: playerY={playerY:F2}, enemyTop={enemyTop:F2}, playerVel={playerVelocity:F2}, fromAbove={fromAbove}");
-		
-		if (fromAbove)
-		{
-			Debug.Log("Stomp! Enemy dies.");
-			mario.Bounce(mario.bouncePower);
-			Die();
-		}
-		else
-		{
-			Debug.Log("Player died from side collision.");
-			mario.Die();
-		}
-	}
+    private void HandlePlayerCollision(MarioController mario)
+    {
+        float playerY = mario.transform.position.y;
+        float enemyHeight = controller != null ? controller.height : 1f;
 
-	private void OnTriggerEnter(Collider other)
+        // ❌ [수정됨] enemyTop 계산은 밟기 판정 로직 안으로 이동
+        // float enemyTop = transform.position.y + enemyHeight * 0.5f;
+
+        float enemyBottom = transform.position.y - enemyHeight * 0.5f;
+        float playerVelocity = mario.GetVerticalVelocity();
+
+        // 
+        // ✅ [수정된 밟기 판정 로직]
+        // 1. 플레이어가 아래로 떨어지고 있는가? (playerVelocity < -0.1f)
+        // 2. 플레이어의 발(playerY)이 몬스터의 중심(transform.position.y)보다 위에 있는가?
+        //
+        bool fromAbove = playerVelocity < -0.1f && playerY > transform.position.y;
+
+        Debug.Log($"Collision: playerY={playerY:F2}, enemyCenterY={transform.position.y:F2}, playerVel={playerVelocity:F2}, fromAbove={fromAbove}");
+
+        if (fromAbove)
+        {
+            Debug.Log("Stomp! Enemy dies.");
+            mario.Bounce(mario.bouncePower);
+            Die(); // 몬스터(자신)가 죽음
+        }
+        else
+        {
+            Debug.Log("Player hit from side or bottom.");
+            mario.TakeDamage(); // <- 이렇게 바꿔야 합니다!
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
 	{
 		var mario = other.GetComponentInParent<MarioController>();
 		if (mario == null) return;

@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 4628457819408203126}
   - component: {fileID: -8753668509719901019}
   - component: {fileID: -6597408450707000485}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Bule
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -54,12 +54,12 @@ CharacterController:
   m_Enabled: 1
   serializedVersion: 3
   m_Height: 2
-  m_Radius: 1.88
+  m_Radius: 1.93
   m_SlopeLimit: 45
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: -0.17, z: 0}
+  m_Center: {x: 0, y: 0.57, z: 0}
 --- !u!114 &-6597408450707000485
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -85,7 +85,7 @@ MonoBehaviour:
   flipOnTurn: 1
   target: {fileID: 0}
   chaseRange: 0
-  wallCheckDistance: 0.6
+  wallCheckDistance: 7
   wallCheckRadius: 0.2
   wallLayers:
     serializedVersion: 2
@@ -105,6 +105,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: blue
+      objectReference: {fileID: 0}
+    - target: {fileID: -5484898237494976003, guid: 8e26c450a272654429ac041cdaf7412b,
+        type: 3}
+      propertyPath: m_Layer
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: -1909730106725176448, guid: 8e26c450a272654429ac041cdaf7412b,
         type: 3}

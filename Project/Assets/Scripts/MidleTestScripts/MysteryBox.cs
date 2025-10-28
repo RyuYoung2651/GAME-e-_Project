@@ -1,13 +1,10 @@
-using System.Collections;
+ï»¿using System.Collections;
 using UnityEngine;
 
 public class QuestionBox : MonoBehaviour
 {
-    // ÀÎ½ºÆåÅÍ ¼³Á¤
     public GameObject[] itemPrefabs;
     public Transform spawnPoint;
-
-    // ¾Ö´Ï¸ŞÀÌ¼Ç º¯¼ö
     public float bounceSpeed = 8f;
     public float returnSpeed = 2f;
     public float bounceHeight = 0.5f;
@@ -20,20 +17,33 @@ public class QuestionBox : MonoBehaviour
         originalPosition = transform.position;
     }
 
-    // ¡Ú¡Ú¡Ú ÇÙ½É ¡Ú¡Ú¡Ú
-    // ÀÌ ÇÔ¼ö´Â ÀÌÁ¦ 'HitTrigger' ½ºÅ©¸³Æ®°¡ È£ÃâÇØ ÁÙ °Ì´Ï´Ù.
-    public void ActivateBox()
+    private void OnCollisionEnter(Collision collision)
     {
-        // ¾ÆÁ÷ ¸ÂÀº ÀûÀÌ ¾ø´Ù¸é
-        if (!isHit)
+        // Player íƒœê·¸ ì˜¤ë¸Œì íŠ¸ì¸ì§€ í™•ì¸
+        if (collision.gameObject.CompareTag("Player"))
         {
-            Debug.Log("¹Ú½º È°¼ºÈ­! (Æ®¸®°Å °¨Áö ¼º°ø)");
-            isHit = true;
-            StartCoroutine(BounceAndSpawnItem());
+            foreach (ContactPoint contact in collision.contacts)
+            {
+                // contact.normal.y < -0.5f == í”Œë ˆì´ì–´ê°€ ì•„ë˜ì—ì„œ ìœ„ë¡œ ë¶€ë”ªì¹¨
+                if (contact.normal.y < -0.5f)
+                {
+                    Debug.Log("âœ… ë¨¸ë¦¬ ë°•ì•˜ë‹¤!");
+                    ActivateBox();
+                    break;
+                }
+            }
         }
     }
 
-    // (ÀÌÇÏ ¾ÆÀÌÅÛ »ı¼º ¹× ¾Ö´Ï¸ŞÀÌ¼Ç ÄÚµå´Â µ¿ÀÏÇÕ´Ï´Ù)
+    public void ActivateBox()
+    {
+        if (isHit) return;
+
+        Debug.Log("ğŸ ë°•ìŠ¤ í™œì„±í™”!");
+        isHit = true;
+        StartCoroutine(BounceAndSpawnItem());
+    }
+
     private IEnumerator BounceAndSpawnItem()
     {
         SpawnRandomItem();
@@ -50,6 +60,7 @@ public class QuestionBox : MonoBehaviour
             transform.position = Vector3.MoveTowards(transform.position, originalPosition, returnSpeed * Time.deltaTime);
             yield return null;
         }
+
         transform.position = originalPosition;
     }
 

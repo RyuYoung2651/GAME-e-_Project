@@ -10,10 +10,10 @@ GameObject:
   m_Component:
   - component: {fileID: 8352533456908408258}
   - component: {fileID: 7213373382431185746}
-  - component: {fileID: 4630421219154140470}
-  m_Layer: 0
+  - component: {fileID: -2901294198133315365}
+  m_Layer: 7
   m_Name: Green
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -53,14 +53,14 @@ CharacterController:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Height: 3.24
-  m_Radius: 1.91
+  m_Height: 1.11
+  m_Radius: 2.14
   m_SlopeLimit: 45
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &4630421219154140470
+  m_Center: {x: 0, y: 0.25, z: 0}
+--- !u!114 &-2901294198133315365
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -85,7 +85,7 @@ MonoBehaviour:
   flipOnTurn: 1
   target: {fileID: 0}
   chaseRange: 0
-  wallCheckDistance: 0.6
+  wallCheckDistance: 7
   wallCheckRadius: 0.2
   wallLayers:
     serializedVersion: 2
@@ -105,6 +105,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: green.vxm
+      objectReference: {fileID: 0}
+    - target: {fileID: -5484898237494976003, guid: 1238269d53be0784ab45b0746be88d39,
+        type: 3}
+      propertyPath: m_Layer
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: -1909730106725176448, guid: 1238269d53be0784ab45b0746be88d39,
         type: 3}

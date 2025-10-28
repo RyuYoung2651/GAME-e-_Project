@@ -1,41 +1,13 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
-public class BoxHitTrigger : MonoBehaviour
+public class HeadHitTrigger : MonoBehaviour
 {
-    // ºÎ¸ð ¿ÀºêÁ§Æ®¿¡ ÀÖ´Â QuestionBox ½ºÅ©¸³Æ®¸¦ ´ãÀ» º¯¼ö
-    private QuestionBox parentBox;
-
-    void Start()
-    {
-        // ½ÃÀÛÇÒ ¶§ ³» ºÎ¸ð ¿ÀºêÁ§Æ®¿¡¼­ QuestionBox ½ºÅ©¸³Æ®¸¦ Ã£¾Æ¼­ ÀúÀå
-        parentBox = GetComponentInParent<QuestionBox>();
-
-        if (parentBox == null)
-        {
-            Debug.LogError("ºÎ¸ð ¿ÀºêÁ§Æ®¿¡¼­ QuestionBox ½ºÅ©¸³Æ®¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù!");
-        }
-    }
-
-    // 3D Æ®¸®°Å °¨Áö (Is Trigger°¡ Ã¼Å©µÇ¾î ÀÖ¾î¾ß ÀÛµ¿)
     private void OnTriggerEnter(Collider other)
     {
-        // 1. ÇÃ·¹ÀÌ¾î¿Í ºÎµúÇû´ÂÁö È®ÀÎ
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("QuestionBox"))
         {
-            // 2. ÇÃ·¹ÀÌ¾î°¡ À§·Î Á¡ÇÁÇÏ´Â ÁßÀÎÁö È®ÀÎ (¸Ó¸®¸¦ ¹Ú´Â ÁßÀÎÁö)
-            Rigidbody playerRb = other.GetComponent<Rigidbody>();
-
-            // ÇÃ·¹ÀÌ¾î°¡ Rigidbody¸¦ °¡Áö°í ÀÖ°í, YÃà ¼Óµµ(velocity.y)°¡ 0º¸´Ù Å©´Ù¸é (»ó½Â Áß)
-            if (playerRb != null && playerRb.velocity.y > 0)
-            {
-                Debug.Log("ÇÃ·¹ÀÌ¾î°¡ ¾Æ·¡¿¡¼­ Æ®¸®°Å¸¦ ÃÆ½À´Ï´Ù!");
-
-                // 3. ºÎ¸ð ¹Ú½ºÀÇ ActivateBox() ÇÔ¼ö¸¦ È£Ãâ!
-                if (parentBox != null)
-                {
-                    parentBox.ActivateBox();
-                }
-            }
+            Debug.Log("ë¨¸ë¦¬ ë°•ì•˜ë‹¤! ðŸŽ‰");
+            other.GetComponent<QuestionBox>()?.ActivateBox();
         }
     }
 }
