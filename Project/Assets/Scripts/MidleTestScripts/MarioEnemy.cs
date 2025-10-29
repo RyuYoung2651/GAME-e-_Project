@@ -183,12 +183,12 @@ public class MarioEnemy : MonoBehaviour
 		}
 	}
 
-	private void Die()
-	{
-		Destroy(gameObject);
-	}
+    public void Die()
+    {
+        Destroy(gameObject);
+    }
 
-	private void OnControllerColliderHit(ControllerColliderHit hit)
+    private void OnControllerColliderHit(ControllerColliderHit hit)
 	{
 		// CharacterController 충돌에서는 stomp 판정이 어렵기 때문에 머리 위에서 내려온 경우를 간단히 추정
 		if (hit.collider == null) return;

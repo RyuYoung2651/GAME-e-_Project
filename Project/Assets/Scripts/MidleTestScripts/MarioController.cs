@@ -43,6 +43,8 @@ public class MarioController : MonoBehaviour
     private Vector3 originalScale;
     private float originalWalkSpeed;
     private float originalRunSpeed;
+    private float originalJumpPower; // 👈 [추가됨] 원래 점프력 저장
+
     private Coroutine powerUpRoutine;
 
     // Layer variables for collision ignorance
@@ -58,6 +60,7 @@ public class MarioController : MonoBehaviour
         originalScale = transform.localScale;
         originalWalkSpeed = walkSpeed;
         originalRunSpeed = runSpeed;
+        originalJumpPower = jumpPower; // 👈 [추가됨] 시작할 때 원래 점프력 저장
 
         // Get layer indices by name
         playerLayer = LayerMask.NameToLayer("Player");
@@ -107,7 +110,7 @@ public class MarioController : MonoBehaviour
         }
         if (Time.time < coyoteUntil && Time.time < jumpBufferedUntil)
         {
-            verticalVelocity = jumpPower;
+            verticalVelocity = jumpPower; // 👈 [중요] 'jumpPower' 변수를 사용하므로 파워업 시 점프력이 자동 적용됨
             jumpBufferedUntil = 0f;
             coyoteUntil = 0f;
             if (animator != null)
@@ -145,25 +148,35 @@ public class MarioController : MonoBehaviour
         jumpBufferedUntil = 0f;
     }
 
-    public void GetPowerUp(float sizeMultiplier)
+    // 🍄 [수정됨] 아이템의 모든 능력치를 받도록 변경
+    public void GetPowerUp(float sizeMultiplier, float speedBoost, float jumpBoost)
     {
         if (hasPowerUp) return;
-        Debug.Log("🍄 Power Up!");
+        Debug.Log("🍄 Power Up! (Size, Speed, Jump)");
         hasPowerUp = true;
+
+        // 능력치 적용
         transform.localScale = originalScale * sizeMultiplier;
+        walkSpeed = originalWalkSpeed + speedBoost;
+        runSpeed = originalRunSpeed + speedBoost;
+        jumpPower = originalJumpPower + jumpBoost;
     }
 
     public void TakeDamage()
     {
-        if (isDead || isInvincible) return; // 무적이거나 죽었으면 리턴
+        if (isDead || isInvincible) return;
         if (hasPowerUp)
         {
             Debug.Log("💫 Hit, but saved by power-up! Shrinking down.");
             hasPowerUp = false;
+
+            // [수정됨] 모든 능력치를 원래대로 되돌림
             transform.localScale = originalScale;
             walkSpeed = originalWalkSpeed;
             runSpeed = originalRunSpeed;
-            StartCoroutine(InvincibilityFrames(1.5f)); // 1.5초 무적 시작
+            jumpPower = originalJumpPower; // 👈 [추가됨] 점프력 원상복구
+
+            StartCoroutine(InvincibilityFrames(1.5f));
             return;
         }
         Debug.Log("💀 No power-up! Player dies.");
@@ -176,7 +189,7 @@ public class MarioController : MonoBehaviour
         isDead = true;
         if (controller != null) controller.enabled = false;
 
-        // animator.SetTrigger("dieTrigger"); // <-- 유저 요청으로 주석 처리 (죽는 애니메이션 없음)
+        // animator.SetTrigger("dieTrigger"); 
 
         enabled = false;
         var gameOverUI = FindFirstObjectByType<GameOverUI>();
@@ -201,13 +214,11 @@ public class MarioController : MonoBehaviour
         Debug.Log("🛡️ Invincibility started!");
         isInvincible = true;
 
-        // 플레이어와 적 레이어 간의 충돌을 끕니다.
         Physics.IgnoreLayerCollision(playerLayer, enemyLayer, true);
 
-        // --- 플레이어 깜빡임 효과 ---
         Renderer playerRenderer = GetComponentInChildren<Renderer>();
 
-        if (playerRenderer != null) // 렌더러가 있는지 확인
+        if (playerRenderer != null)
         {
             float blinkInterval = 0.1f;
             float endTime = Time.realtimeSinceStartup + duration;
@@ -217,16 +228,14 @@ public class MarioController : MonoBehaviour
                 playerRenderer.enabled = !playerRenderer.enabled;
                 yield return new WaitForSecondsRealtime(blinkInterval);
             }
-            playerRenderer.enabled = true; // 깜빡임이 끝나면 반드시 켬
+            playerRenderer.enabled = true;
         }
-        else // 렌더러가 없으면 그냥 시간만 기다림
+        else
         {
             Debug.LogWarning("Player Renderer not found. Waiting for duration.");
             yield return new WaitForSecondsRealtime(duration);
         }
-        // -----------------------------
 
-        // 무적이 끝나면 충돌을 다시 켭니다.
         Physics.IgnoreLayerCollision(playerLayer, enemyLayer, false);
 
         isInvincible = false;

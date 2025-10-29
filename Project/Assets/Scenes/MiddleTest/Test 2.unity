@@ -4361,6 +4361,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Goal
       objectReference: {fileID: 0}
+    - target: {fileID: 6722182669809218576, guid: 68f5cca5aab9f674f8cac0a3db4fcdca,
+        type: 3}
+      propertyPath: nextSceneName
+      value: Test 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

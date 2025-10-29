@@ -49,12 +49,11 @@ MonoBehaviour:
   walkSpeed: 10
   runSpeed: 15
   rotationSpeed: 30
-  attackDuration: 0.8
-  canMoveWhileAttacking: 0
   jumpPower: 18
   gravity: -27
   coyoteTime: 0.1
   jumpBufferTime: 0.1
+  bouncePower: 7
   animator: {fileID: 5655572898463703411}
   jumpStateName: Jump
   jumpStateLayer: 0
