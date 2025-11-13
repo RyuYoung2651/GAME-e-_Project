@@ -4,14 +4,15 @@ using UnityEngine;
 
 public class NoiseVoxelMap : MonoBehaviour
 {
-    public GameObject grassPrefab;
-    public GameObject dirtPrefab;
-    public GameObject waterPrefab;
+    public GameObject blockPrefabDirt;
+    public GameObject blockPrefabGrass;
+    public GameObject blockPrefabWater;
 
     public int width = 20;
     public int depth = 20;
-    public int maxHeight = 16; // Y
-    public int waterHeight = 5;
+    public int maxHeight = 16; // y
+    public int waterLevel = 4;
+
     [SerializeField] float noiseScale = 20f;
 
     void Start()
@@ -25,48 +26,57 @@ public class NoiseVoxelMap : MonoBehaviour
             {
                 float nx = (x + offsetX) / noiseScale;
                 float nz = (z + offsetZ) / noiseScale;
-
                 float noise = Mathf.PerlinNoise(nx, nz);
-
                 int h = Mathf.FloorToInt(noise * maxHeight);
+                if (h < 0) h = 0;
 
-                if (h <= 0) continue;
-
-                for (int y = 0; y < h; y++)
+                for (int y = 0; y <= h; y++)
                 {
-                    Place(x, y, z, h);
-                    WaterPlace(x, y, z, h);
+                    if (y == h)
+                        PlaceGrass(x, y, z);
+                    else
+                        PlaceDirt(x, y, z);
                 }
+
+                for (int y = h + 1; y <= waterLevel; y++)
+                    PlaceWater(x, y, z);
             }
         }
     }
-
-    private void Place(int x, int y, int z, int h)
+    private void PlaceWater(int x, int y, int z)
     {
+        var go = Instantiate(blockPrefabWater, new Vector3(x, y, z), Quaternion.identity, transform);
+        go.name = $"Water_{x}_{y}_{z}";
 
-
-        //최대높이에서 잔디생성
-        if(y == h -1)
-        {
-            var go = Instantiate(grassPrefab, new Vector3(x, y, z), Quaternion.identity, transform);
-            go.name = $"B_{x}_{y}_{z}";
-        }
-        else
-        {
-            var go = Instantiate(dirtPrefab, new Vector3(x, y, z), Quaternion.identity, transform);
-            go.name = $"B_{x}_{y}_{z}";
-        }
-
-
-        
+        var D = go.GetComponent<Block>() ?? go.AddComponent<Block>();
+        D.type = BlockType.Water;
+        D.maxHP = 3;
+        D.dropCount = 1;
+        D.mineable = true;
     }
-    private void WaterPlace(int x, int y, int z, int h)
+
+    private void PlaceDirt(int x, int y, int z)
     {
-        //일정높이에서 물이 생성
-        if (waterHeight < 5)
-        {
-            var go = Instantiate(waterPrefab, new Vector3(x, y, z), Quaternion.identity, transform);
-            go.name = $"B_{x}_{y}_{z}";
-        }
+        var go = Instantiate(blockPrefabDirt, new Vector3(x, y, z), Quaternion.identity, transform);
+        go.name = $"Dirt_{x}_{y}_{z}";
+
+        var D = go.GetComponent<Block>() ?? go.AddComponent<Block>();
+        D.type = BlockType.Dirt;
+        D.maxHP = 3;
+        D.dropCount = 1;
+        D.mineable = true;
     }
+
+    private void PlaceGrass(int x, int y, int z)
+    {
+        var go = Instantiate(blockPrefabGrass, new Vector3(x, y, z), Quaternion.identity, transform);
+        go.name = $"Grass_{x}_{y}_{z}";
+
+        var D = go.GetComponent<Block>() ?? go.AddComponent<Block>();
+        D.type = BlockType.Grass;
+        D.maxHP = 3;
+        D.dropCount = 1;
+        D.mineable = true;
+    }
+
 }
